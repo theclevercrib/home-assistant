@@ -1,4 +1,4 @@
-# Front Yard Devices
+# Back Yard Devices
 
 binary_sensor:
   - platform: mqtt
