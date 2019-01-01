@@ -2,6 +2,8 @@ no_say: '{{ no_say }}'
 no_push: >
   {% if no_notify or tell not in ['kim','william','jordan','upper_residence','lower_residence','residents','everyone'] %}true{% endif %}
 
+tell: '{{ tell }}'
+  
 media_player: >
   {% if is_state('input_boolean.maintenance_mode','on') %}office_mini
   {% elif where|length > 0 %}{{ where }}

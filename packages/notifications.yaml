@@ -25,6 +25,10 @@ notify:
     chat_id: !secret telegram_jordan
 
   - platform: group
+    name: caretakers
+    services:
+      - service: kim
+  - platform: group
     name: upper_residence
     services:
       - service: jordan
@@ -40,8 +44,8 @@ notify:
   - platform: group
     name: everyone
     services:
-      - service: residents
-#      - service: kim
+#      - service: caretakers
+    - service: residents
 
 script:
   notify:

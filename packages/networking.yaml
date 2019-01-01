@@ -14,9 +14,9 @@ sensor:
 
 device_tracker:
   - platform: unifi
-    host: unifi.theclevercrib.com
-    username: homeassistant
-    password: Do3f34D48g
+    host: !secret unifi_host
+    username: !secret unifi_username
+    password: !secret default_password
     consider_home: 120
     new_device_defaults:
       track_new_devices: false
@@ -43,10 +43,11 @@ group:
       - device_tracker.cloudkey
       - device_tracker.smartthings
       - device_tracker.hassio
-      - device_tracker.nvr
-      - device_tracker.ring
-      - device_tracker.honeywell
+      - device_tracker.ringfrontdoorbell
+      - device_tracker.thermostat
       - device_tracker.petnet
+      - device_tracker.fitbodyscale
+      - device_tracker.stripmasterbed
   print_scan_devices:
     name: Print & Scan Devices
     control: hidden
@@ -66,6 +67,7 @@ group:
     control: hidden
     entities:
       - device_tracker.pcgeektop
+      - device_tracker.geekbook
       - device_tracker.tabgeektab
       - device_tracker.pcjordan
   google_cast_devices:
@@ -73,11 +75,18 @@ group:
     control: hidden
     entities:
       - device_tracker.ghlivingroom
-      - device_tracker.tvcclivingroom
+      - device_tracker.cclivingroom
       - device_tracker.ghmasterbath
       - device_tracker.ghmasterbed
-      - device_tracker.ghoffice
-      - device_tracker.ccoffice
+      - device_tracker.ghstudiooffice
+      - device_tracker.ccstudiooffice
+      - device_tracker.ghupstairsbed
+  video_survelliance:
+    name: Video Surveillance
+    control: hidden
+    entities:
+      - device_tracker.nvr
+      - device_tracker.camoffice
       
 automation:
   - id: 'ExternalIPChanged'
@@ -86,7 +95,7 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.myip
-        from: '76.190.72.102'
+        from: !secret external_staticip
     action:
       service: script.notify
       data_template:
@@ -99,7 +108,7 @@ automation:
     trigger:
       - platform: state
         entity_id: sensor.myip
-        to: '76.190.72.102'
+        to: !secret external_staticip
     action:
       service: script.notify
       data_template:
