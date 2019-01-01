@@ -1,0 +1,108 @@
+wake_on_lan:
+zeroconf:
+      
+sensor:
+  - platform: dnsip
+  - platform: speedtest
+    minute:
+      - 0
+      - 30
+    monitored_conditions:
+      - ping
+      - download
+      - upload
+
+device_tracker:
+  - platform: unifi
+    host: unifi.theclevercrib.com
+    username: homeassistant
+    password: Do3f34D48g
+    consider_home: 120
+    new_device_defaults:
+      track_new_devices: false
+      
+homeassistant:
+  customize:
+    sensor.myip:
+      friendly_name: External Address
+      icon: mdi:ip-network
+      
+group:
+  wide_area_network:
+    name: Wide Area Network
+    control: hidden
+    entities:
+      - sensor.myip
+      - sensor.speedtest_download
+      - sensor.speedtest_upload
+      - sensor.speedtest_ping
+  local_area_network:
+    name: Local Area Network
+    control: hidden
+    entities:
+      - device_tracker.cloudkey
+      - device_tracker.smartthings
+      - device_tracker.hassio
+      - device_tracker.nvr
+      - device_tracker.ring
+      - device_tracker.honeywell
+      - device_tracker.petnet
+  print_scan_devices:
+    name: Print & Scan Devices
+    control: hidden
+    entities:
+      - device_tracker.printinkjet
+      - device_tracker.printlaser
+  media_devices:
+    name: Media Devices
+    control: hidden
+    entities:
+      - device_tracker.tvstudiooffice
+      - device_tracker.tvlivingroom
+      - device_tracker.tvbrlivingroom
+      - device_tracker.wiiu
+  user_devices:
+    name: User Devices
+    control: hidden
+    entities:
+      - device_tracker.pcgeektop
+      - device_tracker.tabgeektab
+      - device_tracker.pcjordan
+  google_cast_devices:
+    name: Google Cast Devices
+    control: hidden
+    entities:
+      - device_tracker.ghlivingroom
+      - device_tracker.tvcclivingroom
+      - device_tracker.ghmasterbath
+      - device_tracker.ghmasterbed
+      - device_tracker.ghoffice
+      - device_tracker.ccoffice
+      
+automation:
+  - id: 'ExternalIPChanged'
+    alias: External IP Changed
+    initial_state: on
+    trigger:
+      - platform: state
+        entity_id: sensor.myip
+        from: '76.190.72.102'
+    action:
+      service: script.notify
+      data_template:
+        tell: residents
+        message: >
+          the primary internet connection is unavailable.  I've successfully enabled the wireless backup connection!  Should you need to connect remotely, the current IP Address is: "{{ states('sensor.myip') }}"
+  - id: 'ExternalIPRestored'
+    alias: External IP Restored
+    initial_state: on
+    trigger:
+      - platform: state
+        entity_id: sensor.myip
+        to: '76.190.72.102'
+    action:
+      service: script.notify
+      data_template:
+        tell: residents
+        message: >
+          the primary internet connection has been restored, remote connections can be made as normal!

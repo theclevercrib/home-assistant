@@ -1,0 +1,20 @@
+# Front Yard Devices
+
+binary_sensor:
+  - platform: mqtt
+    state_topic: "smartthings/Storage Shed/contact/state"
+    name: "Storage Shed"
+    payload_on: open
+    payload_off: closed
+    
+homeassistant:
+  customize:
+    binary_sensor.storage_shed:
+      device_class: door
+      icon: mdi:home
+    
+group:
+  back_yard:
+    name: Back Yard
+    entities:
+      - binary_sensor.storage_shed

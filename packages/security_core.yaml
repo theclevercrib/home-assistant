@@ -1,0 +1,244 @@
+alarm_control_panel:
+  - platform: manual
+    name: "Main Residence"
+    pending_time: 0
+    delay_time: 0
+    trigger_time: 360
+    disarmed:
+      trigger_time: 0
+      delay_time: 0
+    armed_home:
+      pending_time: 0
+      delay_time: 0
+      trigger_time: 360
+    armed_away:
+      pending_time: 90
+      delay_time: 120
+      trigger_time: 360
+  - platform: manual
+    name: "Lower Residence"
+    pending_time: 0
+    delay_time: 0
+    trigger_time: 360
+    disarmed:
+      trigger_time: 0
+      delay_time: 0
+    armed_home:
+      pending_time: 0
+      delay_time: 0
+      trigger_time: 360
+    armed_away:
+      pending_time: 90
+      delay_time: 120
+      trigger_time: 360
+  - platform: manual
+    name: "Upper Residence"
+    pending_time: 0
+    delay_time: 0
+    trigger_time: 360
+    disarmed:
+      trigger_time: 0
+      delay_time: 0
+    armed_home:
+      pending_time: 0
+      delay_time: 0
+      trigger_time: 360
+    armed_away:
+      pending_time: 90
+      delay_time: 120
+      trigger_time: 360
+
+input_boolean:
+  notify_front_entrance:
+    name: Zone Notifcations
+    initial: on
+    icon: mdi:bell
+  notify_living_room:
+    name: Zone Notifcations
+    initial: on
+    icon: mdi:bell
+  notify_kitchen:
+    name: Zone Notifcations
+    initial: on
+    icon: mdi:bell
+  notify_downstairs_hall:
+    name: Zone Notifcations
+    initial: off
+    icon: mdi:bell
+  notify_studio_office:
+    name: Zone Notifcations
+    initial: on
+    icon: mdi:bell
+  notify_master_bedroom:
+    name: Zone Notifcations
+    initial: on
+    icon: mdi:bell
+    
+  security_front_entrance:
+    name: Smart Security Protection
+    initial: on
+    icon: mdi:security
+  security_living_room:
+    name: Smart Security Protection
+    initial: on
+    icon: mdi:security
+  security_kitchen:
+    name: Smart Security Protection
+    initial: on
+    icon: mdi:security
+  security_downstairs_hall:
+    name: Smart Security Protection
+    initial: off
+    icon: mdi:security
+  security_studio_office:
+    name: Smart Security Protection
+    initial: on
+    icon: mdi:security
+  security_master_bedroom:
+    name: Smart Security Protection
+    initial: on
+    icon: mdi:security
+    
+automation:
+  - id: 'AlarmStateNotification'
+    alias: Alarm State Notification
+    initial_state: on
+    trigger:
+      - platform: state
+        entity_id: 
+          - alarm_control_panel.main_residence
+          - alarm_control_panel.lower_residence
+          - alarm_control_panel.upper_residence
+    condition:
+      condition: template
+      value_template: >
+        {{ (trigger.entity_id == 'alarm_control_panel.main_residence' 
+            and states('alarm_control_panel.main_residence') != 'disarmed')
+            or states(trigger.entity_id) not in ['pending','armed_night','triggered'] }}
+    action:
+      - delay: '00:00:10'
+      - service: script.notify
+        data_template:
+          no_say: true
+          quick: true
+          tell: residents
+          message: >
+            {% if states('alarm_control_panel.main_residence') != 'disarmed' %}
+              {% set strAlarmPanel = 'alarm_control_panel.main_residence' %}
+              The entire residence
+            {% else %}
+              {% set strAlarmPanel = trigger.entity_id %}
+              The {{ state_attr(trigger.entity_id, 'friendly_name')|lower }}
+            {% endif %}
+            {{- ' ' + ['is now','has been']|random + ' ' -}}
+            {% if states(strAlarmPanel).split('_')[0] == 'armed' %}
+            {{- ["armed", "secured", "protected"]|random + ' as ' -}}
+            {{- states(strAlarmPanel).split("_")[1] + '.' -}}
+            {% elif states(strAlarmPanel) == 'disarmed' %}
+            {{- ["disarmed", "unsecured", "unprotected"]|random + '.' -}}
+            {% endif %}
+  - id: 'NoSecurityDeviceUpper'
+    alias: No Security Device Upper
+    initial_state: on
+    trigger:
+      - platform: state
+        entity_id: 
+          - alarm_control_panel.main_residence
+          - alarm_control_panel.lower_residence
+          - alarm_control_panel.upper_residence
+        from: armed_away
+        to: pending
+        for: '00:00:30'
+    action:
+      service: script.notify
+      data_template:
+        tell: residents
+        message: >
+          I am detecting an attempt to access the
+          {{- " " + state_attr(trigger.entity_id, 'friendly_name') + " "-}}
+          ; however, I am unable to verify any personal security devices at this time. Please check 
+          your device or use a manual override now, in order to disarm security measures.
+  - id: 'AlarmTriggerWarning'
+    alias: Alarm Trigger Warning
+    initial_state: on
+    trigger:
+      - platform: state
+        entity_id:
+          - alarm_control_panel.main_residence
+          - alarm_control_panel.lower_residence
+          - alarm_control_panel.upper_residence
+        from: armed_away
+        to: pending
+        for:
+          seconds: 90
+    action:
+      - service: script.notify
+        data:
+          no_say: true
+          tell: residents
+          message: "I have detected unauthorized activity inside one or more of the residences located
+          at 4504 Murphy Lane, Louisville KY USA.  No security devices appear to be found at the
+          location and no attempt to override security measures has been made by any of the residents!"
+      - service: script.notify
+        data:
+          no_notify: true
+          tell: everyone
+          quick: true
+          message: "Attention!  This residence is currently being monitored and protected.  Unauthorized
+          activity has been detected and the residents have been notified.  As you can see by the
+          monitors in each room, your activity is being recorded and broadcast live at the moment.  If
+          the alarm is not canceled immediately, I will be forced to take additional measures.  If you
+          are not authorized to be here, this is your final chance to leave!"
+  - id: 'AlarmTriggered'
+    alias: Alarm Trigger Warning
+    initial_state: on
+    trigger:
+      - platform: state
+        entity_id: 
+          - alarm_control_panel.main_residence
+          - alarm_control_panel.lower_residence
+          - alarm_control_panel.upper_residence
+        to: triggered
+    action:
+      - service: script.notify
+        data:
+          no_say: true
+          tell: everyone
+          message: "the alarm for one or more of the residences located at 4504 Murphy Lane, 
+          Louisville KY USA has been triggered.  Please check the live video feeds and contact the 
+          authorities if needed!  If you are receiving this message and are not a resident, all attempts
+          to disarm this alarm by a resident have failed."
+      - service: script.notify
+        data:
+          no_notify: true
+          tell: everyone
+          quick: true
+          message: "Attention!  Because no attempt has been made to cancel the alarm, the residence
+          is entering lock down mode.  All activity is being recorded and monitored live at this time.
+          Notifications have been sent to the residents and proper authorities.  Your presence here
+          is not authorized and you will be prosecuted to the fullest extent of the law!  I will now
+          activate the external alarm siren and strobe lights to identify the residence to both locals
+          and law enforcement."
+  - id: 'AlarmTriggeredFinal'
+    alias: Alarm Trigger Final Warning
+    initial_state: on
+    trigger:
+      - platform: state
+        entity_id: 
+          - alarm_control_panel.main_residence
+          - alarm_control_panel.lower_residence
+          - alarm_control_panel.upper_residence
+        to: triggered
+        for:
+          minutes: 5
+    action:
+      - service: script.notify
+        data:
+          no_say: true
+          tell: everyone
+          message: "no one has canceled the alarm at 4504 Murphy Lane, Louisville KY USA which has been
+          sounding for more than five minutes.  If you have not already done so, please contact the
+          authorities immediately!  I have not received acknowledgment of this alarm from any of the
+          residents at this time.  The external alarm siren and strobes will be turned off momentarily
+          and the alarm reset to away mode.  If there is still unauthorized activity at the residence the
+          alarm may be triggered additional times."

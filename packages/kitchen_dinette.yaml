@@ -1,0 +1,183 @@
+# Kitchen Dinette Devices
+
+light:
+  - platform: mqtt
+    name: "Kitchen Light"
+    command_topic: "smartthings/Kitchen Light/switch/cmd"
+    brightness_command_topic: "smartthings/Kitchen Light/level/cmd"
+    brightness_state_topic: "smartthings/Kitchen Light/level/state"
+    brightness_scale: 100
+    payload_on: "on"
+    payload_off: "off"
+    state_topic: "smartthings/Kitchen Light/switch/state"   
+  - platform: mqtt
+    name: "Dinette Light"
+    command_topic: "smartthings/Dinette Light/switch/cmd"
+    brightness_command_topic: "smartthings/Dinette Light/level/cmd"
+    brightness_state_topic: "smartthings/Dinette Light/level/state"
+    brightness_scale: 100
+    payload_on: "on"
+    payload_off: "off"
+    state_topic: "smartthings/Dinette Light/switch/state"
+    
+# Kitchen Dinette Sensors
+
+binary_sensor:
+  - platform: mqtt
+    state_topic: "smartthings/Kitchen Sliding Door/contact/state"
+    name: "Kitchen Sliding Door"
+    payload_on: open
+    payload_off: closed
+  - platform: mqtt
+    state_topic: "smartthings/Kitchen Sliding Door/acceleration/state"
+    name: "Kitchen Sliding Door Vibration"
+    payload_on: active
+    payload_off: inactive
+  - platform: mqtt
+    state_topic: "smartthings/Kitchen/motion/state"
+    name: "Kitchen Motion"
+    payload_on: active
+    payload_off: inactive
+    
+sensor:
+  - platform: mqtt
+    state_topic: "smartthings/Kitchen Sliding Door/temperature/state"
+    name: "Kitchen Sliding Door Contact Temperature"
+    unit_of_measurement: '°F'
+  - platform: mqtt
+    state_topic: "smartthings/Kitchen/temperature/state"
+    name: "Kitchen Motion Temperature"
+    unit_of_measurement: '°F'
+
+# Kitchen Dinette Interface
+    
+homeassistant:
+  customize:
+    binary_sensor.kitchen_sliding_door:
+      device_class: door
+    binary_sensor.kitchen_sliding_door_vibration:
+      device_class: vibration
+    binary_sensor.kitchen_motion:
+      device_class: motion
+    light.kitchen_light:
+        icon: mdi:ceiling-light
+    light.dinette_light:
+        icon: mdi:ceiling-light
+        
+group:
+  kitchen_dinette_occupancy:
+    name: Kitchen Dinette Occupancy
+    icon: mdi:account-multiple
+    entities:
+      - binary_sensor.kitchen_motion
+      - binary_sensor.kitchen_sliding_door
+  kitchen_dinette_protection:
+    name: Kitchen Dinette Protection
+    icon: mdi:security
+    entities:
+      - binary_sensor.kitchen_sliding_door
+      - binary_sensor.kitchen_sliding_door_vibration
+  kitchen_dinette:
+    name: Kitchen Dinette
+    control: hidden
+    entities:
+      - group.kitchen_dinette_occupancy
+      - binary_sensor.kitchen_sliding_door
+      - binary_sensor.kitchen_sliding_door_vibration
+      - binary_sensor.kitchen_motion
+      - sensor.kitchen_battery
+      - light.kitchen_light
+      - light.dinette_light
+      - sensor.kitchen_motion_temperature
+      - sensor.kitchen_sliding_door_contact_temperature
+      - input_boolean.notify_kitchen
+      - input_boolean.security_kitchen
+        
+# Kitchen Dinette Interactivity
+        
+automation:
+  - id: 'KitchenDinetteOccupied'
+    alias: Kitchen Dinette Occupied
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id: group.kitchen_dinette_occupancy
+      to: 'on'
+    condition:
+      condition: template
+      value_template: >
+        {{ states('alarm_control_panel.main_residence') not in ['armed_away','pending','triggered'] }}
+    action:
+      service: light.turn_on
+      data_template:
+        entity_id: light.kitchen_light
+        brightness_pct: >
+          {%if is_state('alarm_control_panel.lower_residence', 'armed_night') %}20{% else %}50{% endif %}
+  - id: 'KitchenDinetteUnoccupied'
+    alias: Kitchen Dinette Unoccupied
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id: group.kitchen_dinette_occupancy
+      to: 'off'
+      for: '00:03:00'                                                                                                                                                                                                    
+    action:
+      service: light.turn_off
+      data:
+        entity_id: light.kitchen_light
+  - id: 'KitchenDinetteAlarm'
+    alias: Kitchen Dinette Alarm
+    initial_state: on
+    trigger:
+    - entity_id: group.kitchen_dinette_protection
+      platform: state
+      to: 'on'
+    condition:
+      condition: or
+      conditions:
+        - condition: state
+          entity_id: alarm_control_panel.smart_security_system
+          state: armed_home
+        - condition: state
+          entity_id: alarm_control_panel.smart_security_system
+          state: armed_away
+    action:
+    - data:
+        entity_id: alarm_control_panel.smart_security_system
+      service: alarm_control_panel.alarm_trigger
+  - id: 'KitchenDinetteUnoccupiedNight'
+    alias: Kitchen Dinette Unoccupied Night
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id: group.kitchen_dinette_occupancy
+      to: 'off'
+      for: '00:01:00'
+    condition:
+      condition: state
+      entity_id: alarm_control_panel.lower_residence
+      state: 'armed_night'
+    action:
+      service: light.turn_off
+      data:
+        entity_id: light.kitchen_light
+  - id: 'KitchenDinetteAlarm'
+    alias: Kitchen Dinette Alarm
+    initial_state: on
+    trigger:
+    - entity_id: group.kitchen_dinette_protection
+      platform: state
+      to: 'on'
+    condition:
+      condition: or
+      conditions:
+        - condition: state
+          entity_id: alarm_control_panel.smart_security_system
+          state: armed_home
+        - condition: state
+          entity_id: alarm_control_panel.smart_security_system
+          state: armed_away
+    action:
+    - data:
+        entity_id: alarm_control_panel.smart_security_system
+      service: alarm_control_panel.alarm_trigger

@@ -1,0 +1,53 @@
+# Front Yard Devices
+
+light:
+  - platform: mqtt
+    name: "Front Yard Lamp Post"
+    command_topic: "smartthings/Front Yard Lamp Post/switch/cmd"
+    brightness_command_topic: "smartthings/Front Yard Lamp Post/level/cmd"
+    brightness_state_topic: "smartthings/Front Yard Lamp Post/level/state"
+    brightness_scale: 100
+    payload_on: "on"
+    payload_off: "off"
+    state_topic: "smartthings/Front Yard Lamp Post/switch/state"
+
+binary_sensor:
+  - platform: mqtt
+    state_topic: "smartthings/Mailbox/contact/state"
+    name: "Mailbox"
+    payload_on: open
+    payload_off: closed
+    
+homeassistant:
+  customize:
+    binary_sensor.mailbox:
+      device_class: door
+      icon: mdi:mailbox
+    
+group:
+  front_yard:
+    name: Front Yard
+    entities:
+      - camera.front_doorbell
+      - binary_sensor.mailbox
+      - light.front_yard_lamp_post
+      
+automation:
+  - id: 'LampPostSunrise'
+    alias: Lamp Post Sunrise
+    initial_state: on
+    trigger:
+      platform: sun
+      event: sunrise
+    action:
+      service: light.turn_off
+      entity_id: light.front_yard_lamp_post
+  - id: 'LampPostSunset'
+    alias: Lamp Post Sunset
+    initial_state: on
+    trigger:
+      platform: sun
+      event: sunset
+    action:
+      service: light.turn_on
+      entity_id: light.front_yard_lamp_post

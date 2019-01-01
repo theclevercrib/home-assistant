@@ -1,0 +1,98 @@
+input_boolean:
+  saying_notification:
+    name: Saying Notification
+    initial: off
+    icon: mdi:chat-processing
+
+telegram_bot:
+  - platform: polling
+    api_key: 606022932:AAGj_9yaXLinvunGK3O-CYPDW1JF79PVsRA
+    parse_mode: html
+    allowed_chat_ids:
+      - 584111364
+      - 533130737
+      - 683117180
+
+notify:
+  - platform: telegram
+    name: kim
+    chat_id: 683117180
+  - platform: telegram
+    name: william
+    chat_id: 584111364 
+  - platform: telegram
+    name: jordan
+    chat_id: 533130737
+
+  - platform: group
+    name: upper_residence
+    services:
+      - service: jordan
+  - platform: group
+    name: lower_residence
+    services:
+      - service: william      
+  - platform: group
+    name: residents
+    services:
+#      - service: upper_residence
+      - service: lower_residence
+  - platform: group
+    name: everyone
+    services:
+      - service: residents
+#      - service: kim
+
+script:
+  notify:
+    sequence:
+      - service: script.notify_handler
+        data_template: !include ../dependencies/notification_builder.yaml
+  
+  notify_handler:
+    sequence:
+      - service: script.notify_say
+        data_template:
+          no_say: "{{ no_say }}"
+          media_player: "{{ media_player }}"
+          message: "{{ message }}"
+      - service: script.notify_push
+        data_template:
+          no_push: "{{ no_push }}"
+          tell: "{{ tell }}"
+          message: "{{ message }}"
+
+  notify_say:
+    sequence:
+      - condition: template
+        value_template: "{{ not no_say }}"
+      - service: input_boolean.turn_on
+        entity_id: input_boolean.saying_notification
+      - service: media_player.turn_on
+        data_template:
+          entity_id: "media_player.{{ media_player }}"
+      - wait_template: "{{ is_state('media_player.' + media_player, 'idle') }}"
+      - service: media_player.volume_set
+        data_template:
+          entity_id: "media_player.{{ media_player }}"
+          volume_level: >
+            {% if is_state('alarm_control_panel.lower_residence','armed_night')
+                  and media_player == 'lower_residence' %}0.6
+            {% else %}0.8{% endif %}
+      - delay: '00:00:01'
+      - service: tts.google_say
+        data_template:
+          entity_id: "media_player.{{ media_player }}"
+          message: "{{ message }}"
+      - delay: '00:00:01'
+      - wait_template: "{{ is_state('media_player.' + media_player, 'idle') }}"
+      - service: input_boolean.turn_off
+        entity_id: input_boolean.saying_notification
+          
+  notify_push:
+    sequence:
+      - condition: template
+        value_template: "{{ tell|length > 0 and not no_push }}"
+      - service_template: "notify.{{ tell }}"
+        data_template:
+          message: "{{ message|replace('\n',' ')|replace('   ',' ')|replace('  ',' ') }}"

@@ -1,0 +1,82 @@
+climate:
+  - platform: honeywell
+    region: !secret honeywell_region
+    username: !secret default_email
+    password: !secret default_password
+    scan_interval: 180
+    
+sensor:
+  - platform: template
+    sensors:
+      thermostat_setpoint:
+        friendly_name: "Thermostat Setpoint"
+        unit_of_measurement: '°F'
+        value_template: "{{ state_attr('climate.thermostat', 'temperature') }}"
+      thermostat_temperature:
+        friendly_name: "Thermostat Temperature"
+        unit_of_measurement: '°F'
+        value_template: "{{ state_attr('climate.thermostat', 'current_temperature') }}"
+
+homeassistant:
+  customize:
+    sensor.thermostat_setpoint:
+      hidden: true
+
+automation:
+  - id: 'ClimateChanged'
+    alias: Climate Changed
+    initial_state: on
+    trigger:
+      entity_id: sensor.thermostat_setpoint
+      platform: state
+    condition:
+      condition: template
+      value_template: "{{ states('alarm_control_panel.lower_residence') in ['disarmed','armed_home'] }}"    
+    action:
+      service: script.notify
+      data_template:
+        tell: everyone
+        message: >
+          the desired temperature has been changed.  The residence will now 
+          {%- if states('climate.thermostat') == 'idle' %} hold 
+            {%- if states('sensor.thermostat_setpoint') == states('sensor.thermostat_temperature') %} at
+            {%- else %} for {% endif %}
+          {%- else %} be {{ states('climate.thermostat') }}ed to 
+          {%- endif %} {{ states('sensor.thermostat_setpoint') }} degrees!
+  - id: 'SunriseWarmup'
+    alias: Sunrise Warmup
+    initial_state: on
+    trigger:
+      platform: sun
+      event: sunrise
+      offset: '-01:00:00'
+    action:
+      service: climate.set_temperature
+      data:
+        entity_id: climate.thermostat
+        temperature: 72
+  - id: 'Warmest Reached'
+    alias: Warmest Reached
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id: sensor.thermostat_temperature
+      to: '72'
+    action:
+      service: climate.set_temperature
+      data:
+        entity_id: climate.thermostat
+        temperature: 70
+  - id: 'AboveWarmest'
+    alias: 'Above Warmest'
+    initial_state: on
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.thermostat_temperature
+      above: 72
+    action:
+      service: climate.set_temperature
+      data_template:
+        entity_id: climate.thermostat
+        temperature: "{{ states('sensor.thermostat_setpoint') }}"
+        operation_mode: 'cool'

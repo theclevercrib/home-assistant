@@ -1,0 +1,118 @@
+#######################################
+### Core System Component Configuration
+
+homeassistant:
+  name: THE CLEVER CRIB
+  latitude: !secret latitude
+  longitude: !secret longitude
+  elevation: !secret elevation
+  time_zone: !secret time_zone
+  unit_system: imperial
+  
+  packages: !include_dir_named packages
+
+http:
+  base_url: !secret base_url
+  ssl_certificate: !secret ssl_certificate
+  ssl_key: !secret ssl_key
+
+updater:
+  # Optional, allows Home Assistant developers to focus on popular components.
+  # include_used_components: true
+
+config:
+discovery:
+frontend:
+
+google_assistant:
+  project_id: home-assistant-404f0
+  api_key: AIzaSyC8e38xRNR4BmmzdOixuz8zSb0KlomcI1w
+  expose_by_default: false
+  entity_config:
+    script.william_medication_taken:
+      name: Williams Meds Taken
+      room: Master Bathroom
+      expose: true
+
+history:
+logbook:
+
+map:
+
+media_player:
+  - platform: spotify
+    client_id: 723f9e831fe14dbe948ee50e05f6d3ed
+    client_secret: 8bf6549361fe49e9bda49e1febaa3af2
+
+mqtt:
+  broker: a0d7b954-mqtt
+  username: !secret default_username
+  password: !secret default_password
+  client_id: home-assistant
+
+panel_iframe:
+  grafana_analytics:
+    title: Grafana Analytics
+    icon: mdi:chart-timeline
+    url: http://hassio.theclevercrib.com:3000
+  mqtt_client:
+    title: MQTT Client
+    icon: mdi:code-brackets
+    url: https://hassio.theclevercrib.com:5713
+  cloud9_ide:
+    title: Cloud 9 IDE
+    icon: mdi:code-braces
+    url: https://hassio.theclevercrib.com:8321
+  nodered_flows:
+    title: Node-RED Flows
+    icon: mdi:nodejs
+    url: https://hassio.theclevercrib.com:1880
+  ssh_terminal:
+    title: SSH Terminal
+    icon: mdi:console
+    url: https://hassio.theclevercrib.com:7681
+  unifi_controller:
+    title: UniFi Controller
+    icon: mdi:router-wireless-settings
+    url: https://unifi.theclevercrib.com:8443
+
+recorder:
+  purge_keep_days: 14
+  exclude:
+    domains:
+      - camera
+      - media_player
+      - group
+      - zone
+  include:
+    entities:
+      - group.downstairs_hall_occupancy
+      - group.downstairs_hall_protection
+      - group.front_entrance_occupancy
+      - group.front_entrance_protection
+      - group.jordans_presence
+      - group.kitchen_dinette_occupancy
+      - group.kitchen_dinette_protection
+      - group.living_room_occupancy
+      - group.living_room_protection
+      - group.master_bedroom_occupancy
+      - group.master_bedroom_protection
+      - group.studio_office_occupancy
+      - group.studio_office_protection
+      - group.williams_presence
+      - sensor.date
+      - sensor.ipv4_address_eth0
+      - sensor.last_boot
+      - sensor.latest_release
+      - sensor.myip
+      - sensor.ring
+      - sensor.schlage
+      - sensor.since_last_boot
+      - sensor.time
+
+tts:
+  platform: google
+  
+zwave:
+  usb_path: !secret zwave_path
+  network_key: !secret zwave_key
