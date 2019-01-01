@@ -1,3 +1,41 @@
+######################################################
+##
+##  THE CLEVER CRIB | Home Assistant Configuration  
+##  ----------------------------------------------
+##  Main & Lower Residence: Downstairs Hall
+##  
+##    I. HUBS
+##      - None
+##    II. COMPONENTS
+##      - None
+##    III. LIGHTS/SWITCHES
+##      - Downstairs Hall Light
+##    IV. SENSORS
+##      - Downstairs Hall Motion
+##      - Downstairs Hall Temperature
+##      - Downstairs Hall Halo Temperature
+##      - Downstairs Hall Halo Humidity
+##      - Downstairs Hall Feels Like
+##    V. CUSTOMIZATIONS
+##      - Downstairs Hall Motion
+##      - Downstairs Hall Occupancy
+##    VI. GROUPS
+##      - Downstairs Hall Protection
+##      - Downstairs Hall Occupancy
+##      - Downstairs Hall
+##    VII. AUTOMATIONS
+##      - Lower Residence Warning
+##      - Downstairs Hall Occupied
+##      - Downstairs Hall Unoccupied
+##    VIII. SCRIPTS
+##      - None
+##
+##  Intent: Automate Downstairs Hall Based on Occupancy of Hall/Master Bathroom 
+##          and Presence Detection/Alarm State
+##  Status: Completed
+##
+######################################################
+
 # Downstairs Hall Devices
 light:
   - platform: mqtt
@@ -75,7 +113,6 @@ group:
       - sensor.thermostat_temperature
       - sensor.downstairs_hall_halo_temperature
       - sensor.downstairs_hall_halo_humidity
-      
       - input_boolean.notify_downstairs_hall
       - input_boolean.security_downstairs_hall
 
