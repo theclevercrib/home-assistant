@@ -1,0 +1,125 @@
+######################################################
+##
+##  THE CLEVER CRIB | Home Assistant Configuration  
+##  ----------------------------------------------
+##  Core: Climate Control
+##  
+##    I. HUBS
+##      - Honeywell
+##    II. COMPONENTS
+##      - None
+##    III. LIGHTS/SWITCHES
+##      - None
+##    IV. SENSORS
+##      - Thermostat Setpoint
+##      - Thermostat Temperature
+##    V. CUSTOMIZATIONS
+##      - Thermostat Setpoint
+##    VI. GROUPS
+##      - None
+##    VII. AUTOMATIONS
+##      - Climate Changed
+##      - Sunrise Warmup
+##      - Warmest Reached
+##      - Above Warmest
+##    VIII. SCRIPTS
+##      - None
+##
+##  Intent: Fully Automate Climate Based On Current Inside/Ideal Inside/Current Outside Temperatures
+##  Status: Work In Progress
+##  Reason: Need to work on single template to be evaluated every minute to check all factors and make
+##          necessary changes to temperature and operation mode to reach ideal temperature at any given
+##          time of day/presence detection/current status of residents.
+##
+######################################################
+
+
+# Climate Control Devices
+
+climate:
+  - platform: honeywell
+    region: !secret honeywell_region
+    username: !secret default_email
+    password: !secret default_password
+    scan_interval: 180
+    
+sensor:
+  - platform: template
+    sensors:
+      thermostat_setpoint:
+        friendly_name: "Thermostat Setpoint"
+        unit_of_measurement: '°F'
+        value_template: "{{ state_attr('climate.thermostat', 'temperature') }}"
+      thermostat_temperature:
+        friendly_name: "Thermostat Temperature"
+        unit_of_measurement: '°F'
+        value_template: "{{ state_attr('climate.thermostat', 'current_temperature') }}"
+
+
+# Climate Control Interface
+        
+homeassistant:
+  customize:
+    sensor.thermostat_setpoint:
+      hidden: true
+
+# Climate Control Interactivity
+      
+automation:
+  - id: 'ClimateChanged'
+    alias: Climate Changed
+    initial_state: on
+    trigger:
+      entity_id: sensor.thermostat_setpoint
+      platform: state
+    condition:
+      condition: template
+      value_template: "{{ states('alarm_control_panel.lower_residence') in ['disarmed','armed_home'] }}"    
+    action:
+      service: script.notify
+      data_template:
+        tell: everyone
+        message: >
+          the desired temperature has been changed.  The residence will now 
+          {%- if states('climate.thermostat') == 'idle' %} hold 
+            {%- if states('sensor.thermostat_setpoint') == states('sensor.thermostat_temperature') %} at
+            {%- else %} for {% endif %}
+          {%- else %} be {{ states('climate.thermostat') }}ed to 
+          {%- endif %} {{ states('sensor.thermostat_setpoint') }} degrees!
+  - id: 'SunriseWarmup'
+    alias: Sunrise Warmup
+    initial_state: on
+    trigger:
+      platform: sun
+      event: sunrise
+      offset: '-01:00:00'
+    action:
+      service: climate.set_temperature
+      data:
+        entity_id: climate.thermostat
+        temperature: 72
+  - id: 'Warmest Reached'
+    alias: Warmest Reached
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id: sensor.thermostat_temperature
+      to: '72'
+    action:
+      service: climate.set_temperature
+      data:
+        entity_id: climate.thermostat
+        temperature: 70
+  - id: 'AboveWarmest'
+    alias: 'Above Warmest'
+    initial_state: on
+    trigger:
+      platform: numeric_state
+      entity_id: sensor.thermostat_temperature
+      above: 72
+    action:
+      service: climate.set_temperature
+      data_template:
+        entity_id: climate.thermostat
+        temperature: "{{ states('sensor.thermostat_setpoint') }}"
+        operation_mode: 'cool'

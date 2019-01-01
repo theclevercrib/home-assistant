@@ -1,0 +1,31 @@
+automation:
+  - id: 'TelegramStart'
+    alias: Telegram Start
+    initial_state: on
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/start'
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: "{{ trigger.event.data.user_id }}"
+          message: "Hi there!  Welcome to The Clever Crib's home automation system.  Although you can
+          send some commands without being prompted, this is primarily an interactive service.  You will
+          be notified when there is an action to be taken.  Until then, enjoy your stay!"
+  - id: 'TelegramDisarm'
+    alias: Telegram Disarm
+    initial_state: on
+    trigger:
+      - platform: event
+        event_type: telegram_command
+        event_data:
+          command: '/disarm'
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: "{{ trigger.event.data.user_id }}"
+          message: "Hi there!  Welcome to The Clever Crib's home automation system.  Although you can
+          send some commands without being prompted, this is primarily an interactive service.  You will
+          be notified when there is an action to be taken.  Until then, enjoy your stay!"

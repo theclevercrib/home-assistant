@@ -1,0 +1,315 @@
+# Studio Office Devices
+
+light:
+  - platform: mqtt
+    name: "Office Lights"
+    command_topic: "smartthings/Office Lights/switch/cmd"
+    brightness_command_topic: "smartthings/Office Lights/level/cmd"
+    brightness_state_topic: "smartthings/Office Lightst/level/state"
+    brightness_scale: 100
+    payload_on: "on"
+    payload_off: "off"
+    state_topic: "smartthings/Office Lights/switch/state"
+  - platform: mqtt
+    name: "Desk Lamp Left"
+    command_topic: "smartthings/Desk Lamp Left/switch/cmd"
+    brightness_command_topic: "smartthings/Desk Lamp Left/level/cmd"
+    brightness_state_topic: "smartthings/Desk Lamp Left/level/state"
+    brightness_scale: 100
+    color_temp_command_topic: "smartthings/Desk Lamp Left/colorTemperature/cmd"
+    color_temp_state_topic: "smartthings/Desk Lamp Left/colorTemperature/state"
+    payload_on: "on"
+    payload_off: "off"
+    state_topic: "smartthings/Desk Lamp Left/switch/state"
+  - platform: mqtt
+    name: "Desk Lamp Right"
+    command_topic: "smartthings/Desk Lamp Right/switch/cmd"
+    brightness_command_topic: "smartthings/Desk Lamp Right/level/cmd"
+    brightness_state_topic: "smartthings/Desk Lamp Right/level/state"
+    brightness_scale: 100
+    color_temp_command_topic: "smartthings/Desk Lamp Right/colorTemperature/cmd"
+    color_temp_state_topic: "smartthings/Desk Lamp Right/colorTemperature/state"
+    payload_on: "on"
+    payload_off: "off"
+    state_topic: "smartthings/Desk Lamp Right/switch/state"
+    
+switch:
+  - platform: mqtt
+    name: "Office Monitors"
+    icon: mdi:monitor-multiple
+    state_topic: "smartthings/Office Monitors/switch/state"
+    command_topic: "smartthings/Office Monitors/switch/cmd"
+    payload_on: "on"
+    payload_off: "off"
+  - platform: mqtt
+    name: "Studio Lights"
+    icon: mdi:spotlight
+    state_topic: "smartthings/Studio Lights/switch/state"
+    command_topic: "smartthings/Studio Lights/switch/cmd"
+    payload_on: "on"
+    payload_off: "off"
+  
+  - platform: mqtt
+    name: Studio Office Television Off
+    icon: mdi:television
+    command_topic: "smartthings/[TV] Studio Office/switch/cmd"
+    payload_off: "off"
+  - platform: wake_on_lan
+    name: Studio Office Television
+    mac_address: "CC-6E-A4-88-B7-3E"
+    turn_off:
+      service: switch.turn_off
+      entity_id: switch.studio_office_television_off
+  - platform: wake_on_lan
+    name: Office Computer
+    mac_address: "D0-50-99-AA-7F-69"
+    
+input_select:
+  led_strip_effect:
+    name: LED Strip Effect
+    options:
+      - "BPM"
+      - "Candy Cane"
+      - "Confetti"
+      - "Cyclon Rainbow"
+      - "Cyclon Single"
+      - "Dots"
+      - "Fire"
+      - "Glitter"
+      - "Juggle"
+      - "Lightning"
+      - "Noise"
+      - "Police All"
+      - "Police One"
+      - "Rainbow"
+      - "Rainbow with Glitter"
+      - "Ripple"
+      - "Sinelon"
+      - "Solid"
+      - "Twinkle"
+    initial: "Solid"
+
+# Studio Office Sensors
+    
+binary_sensor:
+  - platform: mqtt
+    state_topic: "smartthings/Studio Office Outside Window/contact/state"
+    name: "Studio Office Outside Window"
+    payload_on: open
+    payload_off: closed
+  - platform: mqtt
+    state_topic: "smartthings/Studio Office Outside Window/acceleration/state"
+    name: "Studio Office Outside Window Vibration"
+    payload_on: active
+    payload_off: inactive
+  - platform: mqtt
+    state_topic: "smartthings/Studio Office Inside Window/contact/state"
+    name: "Studio Office Inside Window"
+    payload_on: open
+    payload_off: closed
+  - platform: mqtt
+    state_topic: "smartthings/Studio Office Inside Window/acceleration/state"
+    name: "Studio Office Inside Window Vibration"
+    payload_on: active
+    payload_off: inactive
+  - platform: mqtt
+    state_topic: "smartthings/Studio Office Door/contact/state"
+    name: "Studio Office Door"
+    payload_on: open
+    payload_off: closed
+  - platform: mqtt
+    state_topic: "smartthings/Studio Office/motion/state"
+    name: "Studio Office Motion"
+    payload_on: active
+    payload_off: inactive
+    
+sensor:
+  - platform: mqtt
+    state_topic: "smartthings/Studio Office Outside Window/temperature/state"
+    name: "Studio Office Outside Window Temperature"
+    unit_of_measurement: '°F'  
+  - platform: mqtt
+    state_topic: "smartthings/Studio Office Inside Window/temperature/state"
+    name: "Studio Office Inside Window Temperature"
+    unit_of_measurement: '°F'
+  - platform: mqtt
+    state_topic: "smartthings/Studio Office Door/temperature/state"
+    name: "Studio Office Door Temperature"
+    unit_of_measurement: '°F'
+  - platform: mqtt
+    state_topic: "smartthings/Studio Office/temperature/state"
+    name: "Studio Office Motion Temperature"
+    unit_of_measurement: '°F'
+
+# Studio Office Interface
+    
+homeassistant:
+  customize:
+    binary_sensor.studio_office_inside_window:
+      device_class: window
+    binary_sensor.studio_office_inside_window_vibration:
+      device_class: vibration
+    binary_sensor.studio_office_outside_window:
+      device_class: window
+    binary_sensor.studio_office_outside_window_vibration:
+      device_class: vibration
+    binary_sensor.studio_office_door:
+      device_class: door
+    binary_sensor.studio_office_motion:
+      device_class: motion
+    light.desk_lamp_left:
+      icon: mdi:desk-lamp
+    light.desk_lamp_right:
+      icon: mdi:desk-lamp
+    light.office_lights:
+      icon: mdi:light-switch
+    switch.office_computer:
+      icon: mdi:desktop-tower
+      assumed_state: true
+    switch.office_monitors:
+      assumed_state: false
+    switch.studio_monitor:
+      assumed_state: false
+    switch.studio_office_television_off:
+      icon: mdi:television
+      hidden: true
+    switch.studio_office_television:
+      icon: mdi:television
+      assumed_state: true
+      
+group:
+  studio_office_occupancy:
+    name: Studio Office Occupancy
+    icon: mdi:account-multiple
+    entities:
+      - binary_sensor.studio_office_motion
+      - binary_sensor.studio_office_door
+  studio_office_protection:
+    name: Studio Office Protection
+    icon: mdi:security
+    entities:
+      - binary_sensor.studio_office_inside_window
+      - binary_sensor.studio_office_inside_window_vibration
+      - binary_sensor.studio_office_outside_window
+      - binary_sensor.studio_office_outside_window_vibration
+      - binary_sensor.studio_office_door
+  studio_office:
+    name: Studio Office
+    control: hidden
+    entities:
+      - group.studio_office_occupancy
+      - binary_sensor.studio_office_inside_window
+      - binary_sensor.studio_office_inside_window_vibration
+      - binary_sensor.studio_office_outside_window
+      - binary_sensor.studio_office_outside_window_vibration
+      - binary_sensor.studio_office_door
+      - binary_sensor.studio_office_motion
+      - light.office_lights
+      - light.desk_lamp_left
+      - light.desk_lamp_right
+      - switch.studio_lights
+      - switch.office_computer
+      - switch.office_monitors
+      - switch.studio_office_television
+      - media_player.office_mini
+      - media_player.office_speakers
+      - sensor.studio_office_motion_temperature
+      - sensor.studio_office_door_temperature
+      - sensor.studio_office_inside_window_temperature
+      - sensor.studio_office_outside_window_temperature  
+      - input_boolean.notify_studio_office
+      - input_boolean.security_studio_office
+
+# Studio Office Interactivity
+      
+automation:
+  - id: 'StudioOfficeOccupied'
+    alias: Studio Office Occupied
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id: group.studio_office_occupancy
+      to: 'on'
+    action:
+      - service: light.turn_on
+        entity_id: light.office_lights
+      - service: switch.turn_on
+        entity_id: switch.office_monitors
+      - service: switch.turn_on
+        entity_id: switch.studio_office_television
+      - service: switch.turn_on
+        entity_id: switch.office_computer
+  - id: 'StudioOfficeUnoocupied'
+    alias: Studio Office Unoccupied
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id: group.studio_office_occupancy
+      to: 'off'
+      for:
+        minutes: 3
+    action:
+      - service: light.turn_off
+        entity_id: light.office_lights
+      - service: switch.turn_off
+        entity_id: switch.studio_lights
+      - service: switch.turn_off
+        entity_id: switch.office_monitors
+      - service: switch.turn_off
+        entity_id: switch.studio_office_television_off
+      
+  - id: 'DeskLampsOn'
+    alias: Desk Lamps On
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id: light.office_lights
+      to: 'on'
+    action:
+      - service: light.turn_on
+        entity_id: light.desk_lamp_left
+      - service: light.turn_on
+        entity_id: light.desk_lamp_right
+  - id: 'DeskLampsOff'
+    alias: Desk Lamps Off
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id: light.office_lights
+      to: 'off'
+    action:
+      - service: light.turn_off
+        entity_id: light.desk_lamp_left
+      - service: light.turn_off
+        entity_id: light.desk_lamp_right
+        
+  - id: 'StudioOfficeAccessed'
+    alias: Studio Office Accessed
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id: group.studio_office_protection
+      to: 'on'
+      from: 'off'
+    condition:
+      condition: state
+      entity_id: group.williams_presence
+      state: not_home
+    action:
+      - service: script.notify
+        data:
+          no_say: true
+          tell: william
+          message: the Studio Office has been accessed while you are away from the residence.
+          
+  - id: 'LEDStripEffect'
+    alias: LED Strip Effect
+    initial_state: on
+    trigger:
+      - platform: state
+        entity_id: input_select.led_strip_effect
+    action:
+     - service: mqtt.publish
+       data_template:
+         topic: "ledstrip/test/set"
+         payload: "{\"effect\":\"{{ trigger.to_state.state | string | lower }}\",\"state\":\"ON\"}"

@@ -1,0 +1,25 @@
+script:
+  briefing:
+    sequence:
+      - service: script.notify
+        data_template:
+          tell: "{{ tell }}"
+          briefing: >
+            {% macro weather() -%}
+              {% if waking == true %}
+                {{- ["This week's forecast calls for ", "For weather this week, expect ",
+                     "In weather for the days ahead, "]|random -}}
+                {{- states("sensor.dark_sky_daily_summary") -}}
+              {% elif now().hour < 16 and now().hour > 4 %}
+                {{- states("sensor.dark_sky_hourly_summary") }}
+              {% elif now().hour >= 16 and now().hour < 20 %}
+                {{- states("sensor.dark_sky_minutely_summary") }}
+              {% else %}
+                {{- states("sensor.dark_sky_summary") }}
+              {% endif %}
+            {%- endmacro %}
+            
+                        
+            {{ weather() }}
+            
+                      

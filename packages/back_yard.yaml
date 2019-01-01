@@ -1,0 +1,54 @@
+######################################################
+##
+##  THE CLEVER CRIB | Home Assistant Configuration  
+##  ----------------------------------------------
+##  Outside: Back Yard
+##  
+##    I. HUBS
+##      - None
+##    II. COMPONENTS
+##      - None
+##    III. LIGHTS/SWITCHES
+##      - None
+##    III. SENSORS
+##      - Storage Shed
+##    IV. CUSTOMIZATIONS
+##      - Storage Shed
+##    V. GROUPS
+##      - Back Yard
+##    VI. AUTOMATIONS
+##      - None
+##    VII. SCRIPTS
+##      - None
+##
+##  Intent: Extend Security to Outside Back Yard Storage Shed
+##  Status: On Hold
+##  Reason: Upgrade Storage Shed Sensor to SmartThings v2/v3 Contact.
+##          Previous Iris by Lowes Gen 1 Contact Incompatible.
+##
+######################################################
+
+
+# Back Yard Devices
+
+binary_sensor:
+  - platform: mqtt
+    state_topic: "smartthings/Storage Shed/contact/state"
+    name: "Storage Shed"
+    payload_on: open
+    payload_off: closed
+
+
+# Back Yard Interface
+    
+homeassistant:
+  customize:
+    binary_sensor.storage_shed:
+      device_class: door
+      icon: mdi:home
+    
+group:
+  back_yard:
+    name: Back Yard
+    entities:
+      - binary_sensor.storage_shed

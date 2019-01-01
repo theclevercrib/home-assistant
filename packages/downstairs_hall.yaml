@@ -1,0 +1,182 @@
+######################################################
+##
+##  THE CLEVER CRIB | Home Assistant Configuration  
+##  ----------------------------------------------
+##  Main & Lower Residences: Downstairs Hall
+##  
+##    I. HUBS
+##      - None
+##    II. COMPONENTS
+##      - None
+##    III. LIGHTS/SWITCHES
+##      - Downstairs Hall Light
+##    IV. SENSORS
+##      - Downstairs Hall Motion
+##      - Downstairs Hall Temperature
+##      - Downstairs Hall Halo Temperature
+##      - Downstairs Hall Halo Humidity
+##      - Downstairs Hall Feels Like
+##    V. CUSTOMIZATIONS
+##      - Downstairs Hall Motion
+##      - Downstairs Hall Occupancy
+##    VI. GROUPS
+##      - Downstairs Hall Protection
+##      - Downstairs Hall Occupancy
+##      - Downstairs Hall
+##    VII. AUTOMATIONS
+##      - Lower Residence Warning
+##      - Downstairs Hall Occupied
+##      - Downstairs Hall Unoccupied
+##    VIII. SCRIPTS
+##      - None
+##
+##  Intent: Automate Downstairs Hall Based on Occupancy of Downstairs Hall/Master
+##          Bathroom and Presence Detection/Alarm State
+##  Status: Completed
+##
+######################################################
+
+
+# Downstairs Hall Devices
+
+light:
+  - platform: mqtt
+    name: "Downstairs Hall Light"
+    command_topic: "smartthings/Downstairs Hall Light/switch/cmd"
+    brightness_command_topic: "smartthings/Downstairs Hall Light/level/cmd"
+    brightness_state_topic: "smartthings/Downstairs Hall Light/level/state"
+    state_topic: "smartthings/Downstairs Hall Light/switch/state"
+    brightness_scale: 100
+    payload_on: 'on'
+    payload_off: 'off'
+
+
+# Downstairs Hall Sensors
+    
+binary_sensor:
+  - platform: mqtt
+    state_topic: "smartthings/Downstairs Hall/motion/state"
+    name: "Downstairs Hall Motion"
+    payload_on: active
+    payload_off: inactive
+
+sensor:
+  - platform: mqtt
+    state_topic: "smartthings/Downstairs Hall/temperature/state"
+    name: "Downstairs Hall Motion Temperature"
+    unit_of_measurement: "°F"
+  - platform: mqtt
+    state_topic: "smartthings/Downstairs Hall Halo/temperature/state"
+    name: "Downstairs Hall Halo Temperature"
+    unit_of_measurement: "°F"
+  - platform: mqtt
+    state_topic: "smartthings/Downstairs Hall Halo/humidity/state"
+    name: "Downstairs Hall Halo Humidity"
+    unit_of_measurement: "%"
+    icon: mdi:water-percent
+  - platform: template
+    sensors:
+      downstairs_hall_feels_like:
+        friendly_name: "Downstairs Hall Feels Like"
+        unit_of_measurement: "°F"
+        value_template: "{{ (((states('sensor.thermostat_temperature') | int) + 
+                            (states('sensor.downstairs_hall_halo_temperature') | int) + 
+                            (states('sensor.downstairs_hall_motion_temperature') | int)) / 3) | round }}"
+
+                            
+# Downstairs Hall Interface
+        
+homeassistant:
+  customize:
+    binary_sensor.downstairs_hall_motion:
+      device_class: motion
+    group.downstairs_hall_occupancy:
+      device_class: occupancy
+      
+group:
+  downstairs_hall_protection:
+    name: Downstairs Hall Protection
+    icon: mdi:security
+    entities:
+      - binary_sensor.downstairs_hall_motion
+  downstairs_hall_occupancy:
+    name: Downstairs Hall Occupancy
+    icon: mdi:account-multiple
+    entities:
+      - binary_sensor.downstairs_hall_motion
+  downstairs_hall:
+    name: Downstairs Hall
+    control: hidden
+    entities:
+      - group.downstairs_hall_occupancy
+      - binary_sensor.downstairs_hall_motion
+      - sensor.downstairs_hall_battery
+      - light.downstairs_hall_light
+      - sensor.downstairs_hall_feels_like
+      - sensor.downstairs_hall_motion_temperature
+      - sensor.thermostat_temperature
+      - sensor.downstairs_hall_halo_temperature
+      - sensor.downstairs_hall_halo_humidity
+      - input_boolean.notify_downstairs_hall
+      - input_boolean.security_downstairs_hall
+
+      
+# Downstairs Hall Interactivity
+      
+automation:
+  - id: LowerResidenceWarning
+    alias: "Lower Residence Warning"
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id: group.downstairs_hall_occupancy
+      to: 'on'
+    condition:
+      condition: template
+      value_template: "{{ is_state('alarm_control_panel.lower_residence','armed_away') }}"
+    action:
+      service: script.notify
+      data:
+        no_notify: true
+        where: bathroom_home
+        message: "use of the lower residence is not permitted at this time. Unauthorized access will be reported!"
+
+  - id: DownstairsHallOccupied
+    alias: "Downstairs Hall Occupied"
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id:
+        - group.downstairs_hall_occupancy
+        - group.master_bathroom_occupancy
+      to: 'on'
+    condition:
+      condition: template
+      value_template: "{{ states('alarm_control_panel.lower_residence') in ['disarmed','armed_home'] }}"
+    action:
+      service: light.turn_on
+      data:
+        entity_id: light.downstairs_hall_light
+        brightness_pct: 50
+  - id: DownstairsHallUnoccupied
+    alias: "Downstairs Hall Unoccupied"
+    initial_state: on
+    trigger:
+      platform: state
+      entity_id: 
+        - group.downstairs_hall_occupancy
+        - group.master_bathroom_occupancy
+      to: 'off'
+      for: '00:03:00'
+    condition:
+      condition: and
+      conditions:
+        - condition: state
+          entity_id: group.downstairs_hall_occupancy
+          state: 'off'
+        - condition: state
+          entity_id: group.master_bathroom_occupancy
+          state: 'off'
+    action:
+      service: light.turn_off
+      entity_id: light.downstairs_hall_light

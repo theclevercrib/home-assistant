@@ -1,0 +1,109 @@
+#######################################
+### Core System Component Configuration
+
+homeassistant:
+  name: THE CLEVER CRIB
+  latitude: !secret latitude
+  longitude: !secret longitude
+  elevation: !secret elevation
+  time_zone: !secret time_zone
+  unit_system: imperial
+  
+  packages: !include_dir_named packages
+
+http:
+  base_url: !secret base_url
+  ssl_certificate: !secret ssl_certificate
+  ssl_key: !secret ssl_key
+
+updater:
+discovery:
+frontend:
+map:
+logbook:
+history:
+
+panel_iframe:
+  grafana_analytics:
+    title: Grafana Analytics
+    icon: mdi:chart-timeline
+    url: !secret url_grafana_analytics
+  mqtt_client:
+    title: MQTT Client
+    icon: mdi:code-brackets
+    url: !secret url_mqtt_client
+  cloud9_ide:
+    title: Cloud 9 IDE
+    icon: mdi:code-braces
+    url: !secret url_cloud9_ide
+  nodered_flows:
+    title: Node-RED Flows
+    icon: mdi:nodejs
+    url: !secret url_nodered_flows
+  ssh_terminal:
+    title: SSH Terminal
+    icon: mdi:console
+    url: !secret url_ssh_terminal
+  unifi_controller:
+    title: UniFi Controller
+    icon: mdi:router-wireless-settings
+    url: !secret url_unifi_controller
+
+config: 
+
+google_assistant:
+  project_id: !secret google_assistant_project_id
+  api_key: !secret google_assistant_api_key
+  expose_by_default: false
+
+media_player:
+  - platform: spotify
+    client_id: !secret spotify_client_id
+    client_secret: !secret spotify_client_secret
+
+mqtt:
+  broker: a0d7b954-mqtt
+  username: !secret default_username
+  password: !secret default_password
+  client_id: home-assistant
+
+recorder:
+  purge_keep_days: 14
+  exclude:
+    domains:
+      - camera
+      - media_player
+      - group
+      - zone
+  include:
+    entities:
+      - group.downstairs_hall_occupancy
+      - group.downstairs_hall_protection
+      - group.front_entrance_occupancy
+      - group.front_entrance_protection
+      - group.jordans_presence
+      - group.kitchen_dinette_occupancy
+      - group.kitchen_dinette_protection
+      - group.living_room_occupancy
+      - group.living_room_protection
+      - group.master_bedroom_occupancy
+      - group.master_bedroom_protection
+      - group.studio_office_occupancy
+      - group.studio_office_protection
+      - group.williams_presence
+      - sensor.date
+      - sensor.ipv4_address_eth0
+      - sensor.last_boot
+      - sensor.latest_release
+      - sensor.myip
+      - sensor.ring
+      - sensor.schlage
+      - sensor.since_last_boot
+      - sensor.time
+
+tts:
+  platform: google
+  
+zwave:
+  usb_path: !secret zwave_path
+  network_key: !secret zwave_key

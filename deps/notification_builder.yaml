@@ -1,0 +1,116 @@
+no_say: '{{ no_say }}'
+no_push: >
+  {% if no_notify or tell not in ['kim','william','jordan','upper_residence','lower_residence','residents','everyone'] %}true{% endif %}
+
+media_player: >
+  {% if is_state('input_boolean.maintenance_mode','on') %}office_mini
+  {% elif where|length > 0 %}{{ where }}
+  {% elif arriving %}living_room_home
+  {% elif tell in ['william','lower_residence'] %}lower_residence
+  {% elif tell in ['jordan','upper_residence'] %}upper_residence
+  {% else %}everywhere{% endif %}
+  
+message: >
+  {%- macro greeting() -%}
+    {% if arriving %}
+      {% set greeting = ["Welcome home", "Greetings", "It's good to see you again", "Pleasure to see you"] %}
+    {% elif now().hour < 12 and now().hour > 4 %}
+      {% set greeting = ["Hello" , "Good morning" , "Good day"] %}
+    {% elif now().hour >= 12 and now().hour < 16 %}
+       {% set greeting = ["Forgive the interruption" , "Good afternoon" , "Hi there"] %}
+    {% else %}
+       {% set greeting = ["Hi" , "Good evening" , "Excuse the interruption"] %}
+    {% endif %}
+    {{- greeting|random -}}{% if tell in ['william','jordan'] %}, {{ tell|title -}}{% endif %}!
+  {%- endmacro -%}
+  
+  {%- macro inform() -%}
+    {% set inform = ["I want to inform you that ", "I would like to let you know that ",
+        "you asked me to inform you when ", "you should know that ",
+        "you may wish to know that ", "I am letting you know that "] %}
+    {% if multi == true %}{{ additionally() + inform|random }}
+    {% else %}{{ inform|random|capitalize }}{% endif %}
+  {%- endmacro -%}
+  
+  {% macro additionally() -%}
+    {{ ["Also, ", "Additionally, ", "Furthermore, ", "On top of that, ", "In Addition, ",
+       "Not to mention, ", "What's more, ", "And, ", "By the way, "]|random }}
+  {%- endmacro -%}
+  
+  {% macro timeofday() -%}
+    {{ ["The time is", "It is now", "The current time is", "Presently, it's", "Right now, it's"]|random + " " -}}
+    {{- now().strftime("%-I:%M") -}}
+    {% if now().hour < 12 and now().hour > 4 %} in the morning
+    {% elif now().hour >= 12 and now().hour < 16 %} in the afternoon
+    {% elif now().hour >= 16 and now().hour < 20 %} in the evening
+    {% else %} at night {% endif %}
+    on {{ now().strftime("%A, of %B the %d") -}}
+    {%- set date_suffix = ["th", "st", "nd", "rd"] -%}
+    {%- if now().day % 10 in [1, 2, 3] and now().day not in [11, 12, 13] -%}
+      {{- date_suffix[now().day%10] -}}
+    {%- else -%}
+      {{- date_suffix[0] -}}
+    {%- endif %}.
+  {%- endmacro %}
+  
+  {%- macro ofassistance() -%}
+    {{ ["If I can be of any assistance to you, ", "If you need anything at all during your stay, ", "If there's anything I can do to make your stay more comfortable, "]|random }}
+    {{ ["your request is my command!", "I'm at your service!", "the pleasure is mine!", "don't hesitate to ask!"]|random }}
+  {%- endmacro -%}
+  
+  {% if not quick or not no_greet %}{{- greeting() -}}{% endif %}
+  
+  {% if wakeup %}
+    {{ ["It's time for you to be getting ready... ", "You asked me to wake you when... ",
+        "Now would be the best time for you to arise... ", "No better time for you to get out of bed... "]|random }}
+    {{- timeofday() -}}
+  {% endif %}
+  
+  {% if arriving %}
+    {{ ["It looks like you've returned; ", "It appears you have returned to the grounds; ",
+        "I see you're back now; ", "You appear to have come home; "]|random }}
+    {{ ["I'm removing security measures.", "I'll prepare your residence for you.",
+        "the alarm is being disarmed now.", "your residence is ready for you."]|random }}
+    {% set multi = true %}
+  {% endif %}
+ 
+  {% if departing %}
+    {{ ["It looks like you're leaving; ", "It appears you have left the grounds; ",
+        "I see you're away now; ", "You appear to have left the house; "]|random }}
+    {{ ["I'm activating security measures.", "I'll secure the residence for you.",
+        "the alarm is being armed now.", "your residence is being secured."]|random }}
+    {% set multi = true %}
+  {% endif %}
+  
+  {% if sleeping %}
+    It {{ ['appears','looks','seems']|random + ' ' +['like','as though','as if','that']|random + ' ' -}}
+    you are {{ ['preparing for','going to','getting ready for']|random + ' ' + ['bed','sleep']|random }} now.
+    {% if is_state('binary_sensor.william_medicated_recently','off') %}
+    {{ ["You should know that","I'd like to bring to your attention that","I'm sorry but","I should inform you that"]|random + ', ' -}}
+    you {{ ["haven't taken","have not taken","seem to have forgotten","have missed taking"]|random + ' ' }}
+    your medication. Before I adjust the residence, please take your medication!{% endif %}
+  {% endif %}
+  
+  {% if (not quick or not briefing or not no_inform) and message %}{{- inform() -}}{% endif %}
+  {% if briefing %}{{- briefing -}}{% set multi = true %}
+  {% elif message %}{{- message -}}{% set multi = true %}{% endif %}
+    
+    {% if arrived|length > 0 %}
+      {{ inform() + arrived|title }} has
+      {{ [" returned to the house", " returned home", "returned to the grounds",
+          "arrived home", "returned to the premise", "entered the home"]|random }}.
+      {% set multi = true %}
+    {% endif %}
+    
+    {% if departed|length > 0 %}
+      {{ inform() + departed|title }} has
+      {{ [" departed from the ", " left the ", " vacated the "]|random }}
+      {{ ["premise", "residence", "house", "grounds"]|random }}.
+      {% set multi = true %}
+    {% endif %}
+    
+  {% if is_state('input_boolean.maintenance_mode','on') %}
+    {{- inform() -}}
+    {{ ["I am presently running in maintenance mode!", "maintenance is presently being performed!",
+        "my systems are presently being sorted!", "I am undergoing maintenance now!"]|random }}
+  {% endif %}

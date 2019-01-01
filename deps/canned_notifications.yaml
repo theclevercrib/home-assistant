@@ -1,0 +1,57 @@
+  {% macro departed() -%}
+    {{ about }} has
+       {{ [" departed from the ", " left the ", " vacated the "]|random }}
+       {{ ["premise", "residence", "house", "grounds"]|random }}
+       ... 
+  {%- endmacro -%}
+     
+  {% macro arrived() -%}
+    {{ about }} has
+    {{ [" returned to the house", " returned home", "returned to the grounds",
+        "arrived home", "returned to the premise", "entered the home"]|random }}
+    . The upper residence and common areas are available!... 
+  {%- endmacro -%}
+     
+  {% macro weather() -%}
+    {% if now().hour < 12 and now().hour > 6 %}
+      You should expect {{- states("sensor.dark_sky_daily_summary") }}
+    {% elif now().hour >= 12 and now().hour < 17 %}
+      For the rest of the day, expect {{- states("sensor.dark_sky_hourly_summary") }}
+    {% else %}
+      Tonight, {{- states("sensor.dark_sky_minutely_summary") }}
+    {% endif %}
+  {%- endmacro %}
+  
+  {%- macro check_pet_fountain() -%}
+    {{ inform() }}
+    {{ ["the pet water fountain requires your attention... ","the pet water fountain has not run for longer than usual... ",
+        "you should check on the pet water fountain... ", "it's been longer than ususal since the pet water fountain has run... "]|random }}
+  {%- endmacro -%}
+     
+  {%- macro empty_litter_bin() -%}
+    {%- if as_timestamp(now()) >= (state_attr('input_datetime.last_empty_litter' , 'timestamp') + (3 * 24 * 60 * 60)) -%}
+      {{ additionally() }}
+      {{ ["I'd recommend you empty the litter bin today... ","The litter bin requires your attention... ",
+          "It would be ideal for you to empty the litter bin today... "]|random }}
+    {%- endif -%}
+  {%- endmacro -%}
+     
+  {%- macro waste_bins_out() -%}
+    {{ additionally() }}
+    {{ ["I'd recommend you set out the waste bins today... ","The waste bins need to be taken to the street today... ",
+        "It would be ideal for you to set out the waste bins today... "]|random }}
+  {%- endmacro -%}
+     
+  {%- macro waste_bins_in() -%}
+    {{ additionally() }}
+    {{ ["I'd recommend you bring in the waste bins today... ","The waste bins need to be brought in from the street today... ",
+       "It would be ideal for you to bring in the waste bins today... "]|random }}
+  {%- endmacro -%}
+  
+  {%- macro take_medication() -%}
+    {%- if as_timestamp(now()) >= (state_attr('input_datetime.last_medication_taken' , 'timestamp') + (8 * 60 * 60)) -%}
+      {{ additionally() }}
+      {{ ["I'd like to remind you the importance of taking your medication... ","It's time for you to take your medication... ",
+          "At your convenience, please take your medication... ","I'd suggest you stop and take your medication... "]|random }}
+    {%- endif -%}
+  {%- endmacro -%}
