@@ -47,7 +47,7 @@ script:
   notify:
     sequence:
       - service: script.notify_handler
-        data_template: !include ../dependencies/notification_builder.yaml
+        data_template: !include ../deps/notification_builder.yaml
   
   notify_handler:
     sequence:
