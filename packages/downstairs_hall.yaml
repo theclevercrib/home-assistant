@@ -2,7 +2,7 @@
 ##
 ##  THE CLEVER CRIB | Home Assistant Configuration  
 ##  ----------------------------------------------
-##  Main & Lower Residence: Downstairs Hall
+##  Main & Lower Residences: Downstairs Hall
 ##  
 ##    I. HUBS
 ##      - None
@@ -30,13 +30,15 @@
 ##    VIII. SCRIPTS
 ##      - None
 ##
-##  Intent: Automate Downstairs Hall Based on Occupancy of Hall/Master Bathroom 
-##          and Presence Detection/Alarm State
+##  Intent: Automate Downstairs Hall Based on Occupancy of Downstairs Hall/Master
+##          Bathroom and Presence Detection/Alarm State
 ##  Status: Completed
 ##
 ######################################################
 
+
 # Downstairs Hall Devices
+
 light:
   - platform: mqtt
     name: "Downstairs Hall Light"
@@ -45,8 +47,9 @@ light:
     brightness_state_topic: "smartthings/Downstairs Hall Light/level/state"
     state_topic: "smartthings/Downstairs Hall Light/switch/state"
     brightness_scale: 100
-    payload_on: "on"
-    payload_off: "off"
+    payload_on: 'on'
+    payload_off: 'off'
+
 
 # Downstairs Hall Sensors
     
@@ -61,25 +64,26 @@ sensor:
   - platform: mqtt
     state_topic: "smartthings/Downstairs Hall/temperature/state"
     name: "Downstairs Hall Motion Temperature"
-    unit_of_measurement: '°F'
+    unit_of_measurement: "°F"
   - platform: mqtt
     state_topic: "smartthings/Downstairs Hall Halo/temperature/state"
     name: "Downstairs Hall Halo Temperature"
-    unit_of_measurement: '°F'
+    unit_of_measurement: "°F"
   - platform: mqtt
     state_topic: "smartthings/Downstairs Hall Halo/humidity/state"
     name: "Downstairs Hall Halo Humidity"
-    unit_of_measurement: '%'
+    unit_of_measurement: "%"
     icon: mdi:water-percent
   - platform: template
     sensors:
       downstairs_hall_feels_like:
         friendly_name: "Downstairs Hall Feels Like"
-        unit_of_measurement: '°F'
+        unit_of_measurement: "°F"
         value_template: "{{ (((states('sensor.thermostat_temperature') | int) + 
                             (states('sensor.downstairs_hall_halo_temperature') | int) + 
                             (states('sensor.downstairs_hall_motion_temperature') | int)) / 3) | round }}"
 
+                            
 # Downstairs Hall Interface
         
 homeassistant:
@@ -116,19 +120,20 @@ group:
       - input_boolean.notify_downstairs_hall
       - input_boolean.security_downstairs_hall
 
+      
 # Downstairs Hall Interactivity
       
 automation:
-  - id: 'LowerResidenceWarning'
-    alias: Lower Residence Warning
+  - id: LowerResidenceWarning
+    alias: "Lower Residence Warning"
     initial_state: on
     trigger:
-      - platform: state
-        entity_id: group.downstairs_hall_occupancy
-        to: 'on'
+      platform: state
+      entity_id: group.downstairs_hall_occupancy
+      to: 'on'
     condition:
       condition: template
-      value_template: "{{ states('alarm_control_panel.lower_residence') in ['armed_away'] }}"
+      value_template: "{{ is_state('alarm_control_panel.lower_residence','armed_away') }}"
     action:
       service: script.notify
       data:
@@ -136,33 +141,33 @@ automation:
         where: bathroom_home
         message: "use of the lower residence is not permitted at this time. Unauthorized access will be reported!"
 
-  - id: 'Downstairs Hall Occupied'
-    alias: Downstairs Hall Occupied
+  - id: DownstairsHallOccupied
+    alias: "Downstairs Hall Occupied"
     initial_state: on
     trigger:
-      - platform: state
-        entity_id:
-          - group.downstairs_hall_occupancy
-          - group.master_bathroom_occupancy
-        to: 'on'
+      platform: state
+      entity_id:
+        - group.downstairs_hall_occupancy
+        - group.master_bathroom_occupancy
+      to: 'on'
     condition:
       condition: template
-      value_template: "{{ states('alarm_control_panel.lower_residence') not in ['armed_away','armed_night','pending','triggered'] }}"
+      value_template: "{{ states('alarm_control_panel.lower_residence') in ['disarmed','armed_home'] }}"
     action:
       service: light.turn_on
       data:
         entity_id: light.downstairs_hall_light
         brightness_pct: 50
-  - id: 'HallwayDownstairsUnoccupied'
-    alias: Downstairs Hall Unoccupied
+  - id: DownstairsHallUnoccupied
+    alias: "Downstairs Hall Unoccupied"
     initial_state: on
     trigger:
-      - platform: state
-        entity_id: 
-          - group.downstairs_hall_occupancy
-          - group.master_bathroom_occupancy
-        to: 'off'
-        for: '00:03:00'
+      platform: state
+      entity_id: 
+        - group.downstairs_hall_occupancy
+        - group.master_bathroom_occupancy
+      to: 'off'
+      for: '00:03:00'
     condition:
       condition: and
       conditions:
@@ -174,5 +179,4 @@ automation:
           state: 'off'
     action:
       service: light.turn_off
-      data:
-        entity_id: light.downstairs_hall_light
+      entity_id: light.downstairs_hall_light
