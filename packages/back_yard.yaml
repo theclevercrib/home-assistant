@@ -1,3 +1,29 @@
+######################################################
+##  THE CLEVER CRIB | Home Assistant Configuration  
+##  ----------------------------------------------
+##  Outside: Back Yard
+##  
+##  I. HUBS
+##    - None
+##  II. COMPONENTS
+##    - None
+##  III. SESNORS
+##    - Storage Shed
+##  IV. CUSTOMIZATIONS
+##    - Storage Shed
+##  V. GROUPS
+##    - Back Yard
+##  VI. AUTOMATIONS
+##    - None
+##  VII. SCRIPTS
+##    - None
+##
+##  Intent: Extend Security to Outside Back Yard Storage Shed
+##  Status: On Hold    
+
+HUBS / COMPONENTS / SENSORS / CUSTOMIZATIONS / GROUPS / AUTOMATIONS / SCRIPTS
+
+
 # Back Yard Devices
 
 binary_sensor:
