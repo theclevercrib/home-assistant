@@ -4,23 +4,25 @@
 ##  ----------------------------------------------
 ##  Outside: Back Yard
 ##  
-##  I. HUBS
-##    - None
-##  II. COMPONENTS
-##    - None
-##  III. SESNORS
-##    - Storage Shed
-##  IV. CUSTOMIZATIONS
-##    - Storage Shed
-##  V. GROUPS
-##    - Back Yard
-##  VI. AUTOMATIONS
-##    - None
-##  VII. SCRIPTS
-##    - None
+##    I. HUBS
+##      - None
+##    II. COMPONENTS
+##      - None
+##    III. SENSORS
+##      - Storage Shed
+##    IV. CUSTOMIZATIONS
+##      - Storage Shed
+##    V. GROUPS
+##      - Back Yard
+##    VI. AUTOMATIONS
+##      - None
+##    VII. SCRIPTS
+##      - None
 ##
 ##  Intent: Extend Security to Outside Back Yard Storage Shed
-##  Status: On Hold    
+##  Status: On Hold
+##  Reason: Upgrade Storage Shed Sensor to SmartThings v2/v3 Contact.
+##          Previous Iris by Lowes Gen 1 Contact Incompatible.
 ##
 ######################################################
 
