@@ -1,12 +1,4 @@
-# Front Entrance Devices
 
-camera:
-  - platform: ring
-
-ring:
-  username: !secret williams_email
-  password: !secret default_password
-  
 switch:
   - platform: mqtt
     name: "Entry Light"

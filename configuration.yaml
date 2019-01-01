@@ -1,3 +1,5 @@
+# This is to test the automatic commit of locally changed files daily!
+
 #######################################
 ### Core System Component Configuration
 
@@ -24,6 +26,10 @@ logbook:
 history:
 
 panel_iframe:
+  amcrest_nvr:
+    title: Amcrest NVR
+    icon: mdi:video
+    url: !secret url_amcrest_nvr
   grafana_analytics:
     title: Grafana Analytics
     icon: mdi:chart-timeline

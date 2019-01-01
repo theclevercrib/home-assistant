@@ -197,6 +197,7 @@ group:
     name: Studio Office
     control: hidden
     entities:
+      - camera.studio_office
       - group.studio_office_occupancy
       - binary_sensor.studio_office_inside_window
       - binary_sensor.studio_office_inside_window_vibration
