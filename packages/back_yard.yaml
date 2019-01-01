@@ -8,6 +8,8 @@
 ##      - None
 ##    II. COMPONENTS
 ##      - None
+##    III. LIGHTS/SWITCHES
+##      - None
 ##    III. SENSORS
 ##      - Storage Shed
 ##    IV. CUSTOMIZATIONS
@@ -26,6 +28,7 @@
 ##
 ######################################################
 
+
 # Back Yard Devices
 
 binary_sensor:
@@ -34,6 +37,9 @@ binary_sensor:
     name: "Storage Shed"
     payload_on: open
     payload_off: closed
+
+
+# Back Yard Interface
     
 homeassistant:
   customize:

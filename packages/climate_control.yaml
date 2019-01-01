@@ -8,19 +8,21 @@
 ##      - Honeywell
 ##    II. COMPONENTS
 ##      - None
-##    III. SENSORS
+##    III. LIGHTS/SWITCHES
+##      - None
+##    IV. SENSORS
 ##      - Thermostat Setpoint
 ##      - Thermostat Temperature
-##    IV. CUSTOMIZATIONS
+##    V. CUSTOMIZATIONS
 ##      - Thermostat Setpoint
-##    V. GROUPS
+##    VI. GROUPS
 ##      - None
-##    VI. AUTOMATIONS
+##    VII. AUTOMATIONS
 ##      - Climate Changed
 ##      - Sunrise Warmup
 ##      - Warmest Reached
 ##      - Above Warmest
-##    VII. SCRIPTS
+##    VIII. SCRIPTS
 ##      - None
 ##
 ##  Intent: Fully Automate Climate Based On Current Inside/Ideal Inside/Current Outside Temperatures
@@ -30,6 +32,9 @@
 ##          time of day/presence detection/current status of residents.
 ##
 ######################################################
+
+
+# Climate Control Devices
 
 climate:
   - platform: honeywell
@@ -50,11 +55,16 @@ sensor:
         unit_of_measurement: '°F'
         value_template: "{{ state_attr('climate.thermostat', 'current_temperature') }}"
 
+
+# Climate Control Interface
+        
 homeassistant:
   customize:
     sensor.thermostat_setpoint:
       hidden: true
 
+# Climate Control Interactivity
+      
 automation:
   - id: 'ClimateChanged'
     alias: Climate Changed

@@ -17,64 +17,55 @@ http:
   ssl_key: !secret ssl_key
 
 updater:
-  # Optional, allows Home Assistant developers to focus on popular components.
-  # include_used_components: true
-
-config:
 discovery:
 frontend:
+map:
+logbook:
+history:
+
+panel_iframe:
+  grafana_analytics:
+    title: Grafana Analytics
+    icon: mdi:chart-timeline
+    url: !secret url_grafana_analytics
+  mqtt_client:
+    title: MQTT Client
+    icon: mdi:code-brackets
+    url: !secret url_mqtt_client
+  cloud9_ide:
+    title: Cloud 9 IDE
+    icon: mdi:code-braces
+    url: !secret url_cloud9_ide
+  nodered_flows:
+    title: Node-RED Flows
+    icon: mdi:nodejs
+    url: !secret url_nodered_flows
+  ssh_terminal:
+    title: SSH Terminal
+    icon: mdi:console
+    url: !secret url_ssh_terminal
+  unifi_controller:
+    title: UniFi Controller
+    icon: mdi:router-wireless-settings
+    url: !secret url_unifi_controller
+
+config: 
 
 google_assistant:
-  project_id: home-assistant-404f0
-  api_key: AIzaSyC8e38xRNR4BmmzdOixuz8zSb0KlomcI1w
+  project_id: !secret google_assistant_project_id
+  api_key: !secret google_assistant_api_key
   expose_by_default: false
-  entity_config:
-    script.william_medication_taken:
-      name: Williams Meds Taken
-      room: Master Bathroom
-      expose: true
-
-history:
-logbook:
-
-map:
 
 media_player:
   - platform: spotify
-    client_id: 723f9e831fe14dbe948ee50e05f6d3ed
-    client_secret: 8bf6549361fe49e9bda49e1febaa3af2
+    client_id: !secret spotify_client_id
+    client_secret: !secret spotify_client_secret
 
 mqtt:
   broker: a0d7b954-mqtt
   username: !secret default_username
   password: !secret default_password
   client_id: home-assistant
-
-panel_iframe:
-  grafana_analytics:
-    title: Grafana Analytics
-    icon: mdi:chart-timeline
-    url: http://hassio.theclevercrib.com:3000
-  mqtt_client:
-    title: MQTT Client
-    icon: mdi:code-brackets
-    url: https://hassio.theclevercrib.com:5713
-  cloud9_ide:
-    title: Cloud 9 IDE
-    icon: mdi:code-braces
-    url: https://hassio.theclevercrib.com:8321
-  nodered_flows:
-    title: Node-RED Flows
-    icon: mdi:nodejs
-    url: https://hassio.theclevercrib.com:1880
-  ssh_terminal:
-    title: SSH Terminal
-    icon: mdi:console
-    url: https://hassio.theclevercrib.com:7681
-  unifi_controller:
-    title: UniFi Controller
-    icon: mdi:router-wireless-settings
-    url: https://unifi.theclevercrib.com:8443
 
 recorder:
   purge_keep_days: 14

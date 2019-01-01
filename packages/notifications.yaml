@@ -6,23 +6,23 @@ input_boolean:
 
 telegram_bot:
   - platform: polling
-    api_key: 606022932:AAGj_9yaXLinvunGK3O-CYPDW1JF79PVsRA
+    api_key: !secret telegram_api_key
     parse_mode: html
     allowed_chat_ids:
-      - 584111364
-      - 533130737
-      - 683117180
+      - !secret telegram_kim
+      - !secret telegram_william
+      - !secret telegram_jordan
 
 notify:
   - platform: telegram
     name: kim
-    chat_id: 683117180
+    chat_id: !secret telegram_kim
   - platform: telegram
     name: william
-    chat_id: 584111364 
+    chat_id: !secret telegram_william
   - platform: telegram
     name: jordan
-    chat_id: 533130737
+    chat_id: !secret telegram_jordan
 
   - platform: group
     name: upper_residence
