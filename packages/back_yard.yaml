@@ -1,4 +1,5 @@
 ######################################################
+##
 ##  THE CLEVER CRIB | Home Assistant Configuration  
 ##  ----------------------------------------------
 ##  Outside: Back Yard
@@ -20,9 +21,8 @@
 ##
 ##  Intent: Extend Security to Outside Back Yard Storage Shed
 ##  Status: On Hold    
-
-HUBS / COMPONENTS / SENSORS / CUSTOMIZATIONS / GROUPS / AUTOMATIONS / SCRIPTS
-
+##
+######################################################
 
 # Back Yard Devices
 
