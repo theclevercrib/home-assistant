@@ -1,0 +1,21 @@
+amcrest:
+  - host: !secret camera_nvr
+    name: NVR
+    username: admin
+    password: !secret default_password
+    switches:
+      - motion_recording
+  - host: !secret camera_studiooffice
+    name: STUDIO OFFICE
+    username: admin
+    password: !secret default_password
+    sensors:
+      - motion_detector
+
+ring:
+  username: !secret williams_email
+  password: !secret default_password      
+
+camera:
+  - platform: amcrest
+  - platform: ring
