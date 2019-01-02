@@ -19,3 +19,8 @@ ring:
 camera:
   - platform: amcrest
   - platform: ring
+  
+homeassistant:
+  customize:
+    camera.nvr:
+      hidden: true

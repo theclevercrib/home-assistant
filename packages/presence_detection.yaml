@@ -1,7 +1,4 @@
 device_tracker:
-  - platform: googlehome
-    host: '10.0.0.14'
-    rssi_threshold: -40
   - platform: mqtt
     devices:
       william_smartthings: "smartthings/William's Mobile Phone/presence/state"
