@@ -49,22 +49,61 @@ group:
       - input_datetime.william_last_medicated
       
 automation:
-  - id: 'Fitness Tracker Reminder'
+  - id: FitnessTrackerCharging
+    alias: Fitness Tracker Charging
+    initial_state: on
+    trigger:
+      - platform: state
+        entity_id: sensor.william_fitness_tracker
+        from: Worn
+    action:
+      - service: script.notify
+        data:
+          no_notify: true
+          no_inform: true
+          tell: william
+          message: I'll let you know when your fitness tracker is ready to be worn again!
+      - service: automation.turn_on
+        entity_id: automation.fitness_tracker_charged
+  - id: FitnessTrackerCharged
+    alias: Fitness Tracker Charged
+    initial_state: on
+    trigger:
+      - platform: state
+        entity_id: sensor.william_fitness_tracker
+        to: Charged
+    condition:
+      condition: template
+      value_template: "{{ states('sensor.william_status') not in ['Sleeping'] }}"
+    action:
+      - service: script.notify
+        data:
+          tell: william
+          message: your fitness tracker is fully charged and ready to be worn now!
+      - service: automation.turn_off
+        entity_id: automation.fitness_tracker_charged
+  - id: FitnessTrackerReminder
     alias: Fitness Tracker Reminder
     initial_state: on
     trigger:
       - platform: state
         entity_id: binary_sensor.master_bathroom_shower
         to: 'off'
-        for: '00:09:00'
+        for: '00:10:00'
+      - platform: time
+        hours: '/1'
+        minutes: 00
+        seconds: 00
     condition:
       condition: template
-      value_template: "{{ states('sensor.william_fitness_tracker') not in ['Worn'] }}"
+      value_template: >
+        {{ not is_state('sensor.william_fitness_tracker','Worn') 
+        and states('sensor.william_status') not in ['Sleeping','Waking'] }}
     action:
       - service: script.notify
         data:
           tell: william
-          message: you weren't wearing your fitness tracker after showering!
+          message: you aren't wearing your fitness tracker!  Therefore, I cannot fully monitor your health and fitness.  Your fitness tracker is fully charged, please wear it now!
           
 script:
   william_medication_taken:

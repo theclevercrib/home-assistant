@@ -1,12 +1,12 @@
 amcrest:
   - host: !secret camera_nvr
-    name: NVR
+    name: Network Video Recorder
     username: admin
     password: !secret default_password
     switches:
       - motion_recording
   - host: !secret camera_studiooffice
-    name: STUDIO OFFICE
+    name: Studio Office
     username: admin
     password: !secret default_password
     sensors:

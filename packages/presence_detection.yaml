@@ -99,12 +99,19 @@ group:
     entities:
       - device_tracker.jordan_smartthings
       - device_tracker.jordan_mobile_wifi
-  residents:
-    name: "Residents"
+  main_residents:
+    name: "All Residents"
     entities:
       - sensor.william_status
       - sensor.jordan_status
-
+  lower_residents:
+    name: "Lower Residents"
+    entities:
+      - sensor.william_status
+  upper_residents:
+    name: "Upper Residents"
+    entities:
+      - sensor.jordan_status
 automation:
   - id: 'Presence Arrived'
     alias: Presence Arrived

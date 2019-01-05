@@ -1,6 +1,6 @@
 no_say: '{{ no_say }}'
 no_push: >
-  {% if no_notify or tell not in ['kim','william','jordan','upper_residence','lower_residence','residents','everyone'] %}true{% endif %}
+    {% if no_notify or no_push or tell not in ['kim','william','jordan','upper_residence','lower_residence','residents','everyone'] %}true{% endif %}
 
 tell: '{{ tell }}'
   
@@ -93,7 +93,7 @@ message: >
     your medication. Before I adjust the residence, please take your medication!{% endif %}
   {% endif %}
   
-  {% if (not quick or not briefing or not no_inform) and message %}{{- inform() -}}{% endif %}
+  {% if not no_inform and message %}{{- inform() -}}{% endif %}
   {% if briefing %}{{- briefing -}}{% set multi = true %}
   {% elif message %}{{- message -}}{% set multi = true %}{% endif %}
     

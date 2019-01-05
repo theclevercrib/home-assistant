@@ -14,6 +14,45 @@ automation:
           message: "Hi there!  Welcome to The Clever Crib's home automation system.  Although you can
           send some commands without being prompted, this is primarily an interactive service.  You will
           be notified when there is an action to be taken.  Until then, enjoy your stay!"
+  - id: TelegramResidenceStatus
+    alias: Telegram Residence/ Status
+    initial_state: on
+    trigger:
+      platform: event
+      event_type: telegram_command
+      event_data:
+        command: '/status'
+    action:
+      - service: telegram_bot.send_message
+        data_template:
+          target: "{{ trigger.event.data.user_id }}"
+          message: >
+            {% if trigger.event.data.args %}
+              {% set selected = trigger.event.data.args|first %}
+              {% macro resident_status(resident_entity) -%}
+              {{- state_attr(resident_entity, 'friendly_name')|title + " "-}}
+                  is {{ ['presently','currently', 'now']|random + ' ' -}}
+                  {{- states(resident_entity)|lower -}}.
+              {%- endmacro %}
+              {% if selected in ['main','lower','upper'] %}
+                {% set panel_entity = 'alarm_control_panel.' + selected + '_residence' %}
+                The {{ selected }} residence is {{ ['presently','currently', 'now']|random + ' ' -}}
+                {% if states(panel_entity).split('_')[0] == 'armed' %}
+                {{- ["armed", "secured", "protected"]|random + ' as ' -}}
+                {{- states(panel_entity).split("_")[1] + '.' -}}
+                {% elif states(panel_entity) == 'disarmed' %}
+                {{- ["disarmed", "unsecured", "unprotected"]|random + '.' -}}
+                {% endif -%}{{ "\n" }}
+                {%- for resident_entity in state_attr('group.'+ selected +'_residents','entity_id') %}
+                  {{- resident_status(resident_entity) -}}{{ "\n" }}
+                {%- endfor %}
+              {% elif selected in ['william','jordan'] %}
+                {{- resident_status('sensor.' + selected + '_status') -}}{{ "\n" }}
+              {% else %}
+                I do not recognize the person or residence that you specified, please try again.
+              {% endif %}
+            {% else %}In order to use the /status command, you must specify a person or residence.{% endif %}
+
   - id: 'TelegramDisarm'
     alias: Telegram Disarm
     initial_state: on

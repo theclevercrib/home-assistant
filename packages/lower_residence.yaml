@@ -11,7 +11,46 @@ group:
       - switch.studio_office_television
 
 automation:
-  - id: 'LowerResidenceNight'
+  - id: LowerResidenceWaking
+    alias: Lower Residence Waking
+    initial_state: on
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.master_bathroom_shower
+          - light.master_bedroom_floor_lamp
+        to: 'on'
+    condition:
+      condition: state
+      entity_id: alarm_control_panel.lower_residence
+      state: armed_night
+    action:
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.william_status_selector
+          option: Waking
+      - service: alarm_control_panel.alarm_arm_home
+        entity_id: alarm_control_panel.lower_residence
+      - service: script.notify
+        data:
+          no_notify: true
+          no_inform: true
+          tell: william
+          message: it appears you are waking for the day!  I've prepared the residence for you.
+  - id: LowerResidenceAwake
+    alias: Lower Residence Awake
+    initial_state: on
+    trigger:
+      - platform: state
+        entity_id: sensor.william_status
+        to: Waking
+        for: '00:03:00'
+    action:
+      - service: input_select.select_option
+        data:
+          entity_id: input_select.william_status_selector
+          option: Home
+  - id: LowerResidenceNight
     alias: Lower Residence Night
     initial_state: on
     trigger:
@@ -55,9 +94,9 @@ script:
       - service: script.notify
         data_template:
           no_notify: true
+          no_inform: true
           tell: william
           where: master_bedroom_home
-          no_inform: true
           message: >
             It {{ ['appears','looks','seems']|random + ' ' +['like','as though','as if','that']|random + ' ' -}}
             you are {{ ['preparing for','going to','getting ready for']|random + ' ' + ['bed','sleep']|random }} now.
@@ -65,17 +104,21 @@ script:
             {{ ["You should know that","I'd like to bring to your attention that","I'm sorry but","I should inform you that"]|random + ', ' -}}
             you {{ ["haven't taken","have not taken","seem to have forgotten","have missed taking"]|random + ' ' }}
             your medication. Before I adjust the residence, please take your medication!{% endif %}
-      - wait_template: "{{ is_state('binary_sensor.william_medicated_recently','on') }}"
+            {% if is_state('sensor.william_fitness_tracker','Worn') %}
+            It looks like you're still wearing your fitness tracker.  Please charge it before you sleep!{% endif %}
+      - wait_template: "{{ is_state('binary_sensor.william_medicated_recently','on') 
+                        and not is_state('sensor.william_fitness_tracker','Worn')}}"
         timeout: '00:03:30'
         continue_on_timeout: 'false'
-      - delay: '00:00:02'
-      - wait_template: "{{ is_state('media_player.master_bedroom_home','idle') }}"
+      - delay: '00:00:03'
+      - wait_template: "{{ is_state('input_boolean.saying_notification','off') }}"
       - service: script.notify
         data_template:
           no_notify: true
+          no_greet: true
+          no_inform: true
           tell: william
           where: master_bedroom_home
-          quick: true
           message: >
             I'm adjusting the residence to your {{ ['night time','bed time','sleeping']|random }}
             {{ ['preferences','desires','wishes']|random }}.

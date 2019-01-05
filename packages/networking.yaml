@@ -17,9 +17,7 @@ device_tracker:
     host: !secret unifi_host
     username: !secret unifi_username
     password: !secret default_password
-    consider_home: 120
-    new_device_defaults:
-      track_new_devices: false
+    detection_time: 120
       
 homeassistant:
   customize:
@@ -45,7 +43,7 @@ group:
       - device_tracker.hassio
       - device_tracker.ringfrontdoorbell
       - device_tracker.thermostat
-      - device_tracker.petnet
+      - device_tracker.petfeeder
       - device_tracker.fitbodyscale
       - device_tracker.stripmasterbed
   print_scan_devices:

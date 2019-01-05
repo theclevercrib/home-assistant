@@ -88,6 +88,9 @@ script:
       - service_template: "notify.{{ target }}"
         data_template:
           message: "{{ message }}"
+          data:
+            inline_keyboard:
+              - "Start:/start"
           
   notify_say_queue:
     sequence:
@@ -96,7 +99,7 @@ script:
       - service: notify.queue
         data_template: 
           message: >-
-            {"media_player":"{{ media_player }}","message":"{{ message }}"} \n
+            {"media_player":"{{ media_player }}","message":"{{ message }}"}
       
   notify_say_now:
     sequence:
@@ -114,7 +117,7 @@ script:
           volume_level: >
             {% if is_state('alarm_control_panel.lower_residence','armed_night')
             and media_player == 'lower_residence' %}0.6
-            {% else %}0.8{% endif %}
+            {% else %}0.7{% endif %}
       - delay: '00:00:01'
       - service: tts.google_say
         data_template:

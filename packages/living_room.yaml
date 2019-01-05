@@ -305,7 +305,7 @@ automation:
       data:
         tell: residents
         message: "the Litter Box has not been running for longer than usual.  You may need to check if the bin is full!"
-  - id: 'LitterBoxEmptied'
+  - id: 'LitterPanPulled'
     alias: Litter Box Emptied
     initial_state: on
     trigger:
@@ -313,12 +313,19 @@ automation:
         entity_id: binary_sensor.litter_box_pan
         to: 'on'
     action:
-      - service: input_datetime.set_datetime
-        data_template:
-          entity_id: input_datetime.litter_emptied
-          date: "{{ now().year }}-{{ now().month }}-{{ now().day }}"
-      - service: switch.turn_off
-        entity_id: switch.pets_without_litter_notification
+#      - service: input_datetime.set_datetime
+#        data_template:
+#          entity_id: input_datetime.litter_emptied
+#          date: "{{ now().year }}-{{ now().month }}-{{ now().day }}"
+#      - service: switch.turn_off
+#        entity_id: switch.pets_without_litter_notification
+      - service: script.notify
+        data:
+          tell: residents
+          message: "the litter pan was recently pulled from the litter box.  Was the litter emptied?"
+          inline_keyboard:
+            - 'Litter Box Emptied: /script pets_litter_emptied'
+                    
         
   - id: 'LivingRoomAlarm'
     alias: Living Room Alarm

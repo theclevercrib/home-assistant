@@ -27,9 +27,9 @@
 ##
 ##  Intent: Fully Automate Climate Based On Current Inside/Ideal Inside/Current Outside Temperatures
 ##  Status: Work In Progress
-##  Reason: Need to work on single template to be evaluated every minute to check all factors and make
-##          necessary changes to temperature and operation mode to reach ideal temperature at any given
-##          time of day/presence detection/current status of residents.
+##  Reason: Need to work on single template to be evaluated every temperature change to check all factors
+##          and make necessary changes to temperature and operation mode to reach ideal temperature at any
+##          given time of day/presence detection/current status of residents.
 ##
 ######################################################
 
